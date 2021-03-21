@@ -1,56 +1,49 @@
 import React, {Component} from 'react';
 import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  FlatList
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator
 } from 'react-native';
-import Pessoa from './src/components/Pessoas';
 
+import api from './src/services/api'
+import Filmes from './src/components/Filmes'
 class App extends Component{
   
-  constructor(props) {
+
+  constructor(props) {    
     super(props);
     this.state = {
-      feed:[
-        {
-          id:'1',
-          nome:'Joao',
-          idade: 50,
-          email: 'joao@gmail.com'
-        },
-        {
-          id:'6',
-          nome:'Paulo',
-          idade: 50,
-          email: 'joao@gmail.com'
-        },
-        {
-          id:'3',
-          nome:'jorge',
-          idade: 22,
-          email: 'joao@gmail.com'
-        },
-        {
-          id:'2',
-          nome:'Andrews',
-          idade: 5,
-          email: 'joao@gmail.com'
-        },
-      ]
+      filmes:[],
+      loading: true
     };
   }  
-  
+
+  async componentDidMount() {
+    const res = await api.get('r-api/?api=filmes');
+    this.setState({
+      filmes: res.data, 
+      loading:false
+    })
+  }
   render() {
-    return (
-      <View style={styles.container}>
-        <FlatList 
-          data={this.state.feed}
-          keyExtractor={(item)=> item.id}
-          renderItem={ ({item}) => <Pessoa data={item}/>}
-        />
-      </View>
-    );
+    if(this.state.loading) {
+      return (
+        <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
+          <ActivityIndicator color="red" size={40}/>
+        </View>
+      );
+    }else{
+      return (
+        <View style={styles.container}>
+          <FlatList
+            data={this.state.filmes}
+            keyExtractor={item => item.id.toString()}
+            renderItem={ ({item}) => <Filmes data={item} />}
+          />
+        </View> 
+      );
+    }    
   }  
 }
 
@@ -59,6 +52,7 @@ const styles = StyleSheet.create({
     flex:1,
     marginTop:25
   }
+
 })
 
 export default App;
